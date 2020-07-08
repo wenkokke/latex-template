@@ -1,0 +1,137 @@
+\documentclass[main.tex]{subfiles}
+
+\begin{document}
+
+\section{Linear $\lambda$-calculus}
+\usingnamespace{llam}
+
+\subsection{Syntax}
+\label{sec:llam-syntax}
+
+\paragraph{Types and environments}
+\[
+\begin{array}{lcl}
+  \ty{T}, \ty{U}
+  & \coloneqq & \ty{\tyunit}
+    \sep        \ty{\tyvoid}
+    \sep        \ty{\typrod{T}{U}}
+    \sep        \ty{\tysum{T}{U}}
+    \sep        \ty{\tylolli{T}{U}}
+  \\
+  \ty{\Gamma}, \ty{\Delta}
+  & \coloneqq & \ty{\emptyenv}
+    \sep        \ty{\Gamma}, \tmty{x}{T}
+\end{array}
+\]
+
+\paragraph{Terms}
+\[
+\begin{array}{lcl}
+  \tm{L}, \tm{M}, \tm{N}
+  & \coloneqq & \tm{x}
+    \sep        \tm{\lambda x.M}
+    \sep        \tm{M\;N} \\
+  & \sep      & \tm{\unit}
+    \sep        \tm{\letunit{M}{N}} \\
+  & \sep      & \tm{\absurd{M}} \\
+  & \sep      & \tm{\pair{M}{N}}
+    \sep        \tm{\letpair{x}{y}{M}{N}} \\
+  & \sep      & \tm{\inl{M}}
+    \sep        \tm{\inr{M}}
+    \sep        \tm{\casesum{L}{x}{M}{y}{N}} \\
+\end{array}
+\]
+
+\subsection{Typing}%
+\label{sec:llam-typing}
+
+\begin{mathpar}
+  \inferrule*[lab=T-Var]{
+  }{\seq{\tmty{x}{T}}{x}{T}}
+
+  \inferrule*[lab=T-Const]{
+  }{\seq{\emptyenv}{K}{T}}
+
+  \inferrule*[lab=T-Lam]{
+    \seq{\ty{\Gamma},\tmty{x}{T}}{M}{U}
+  }{\seq{\ty{\Gamma}}{\lambda x.M}{\tylolli{T}{U}}}
+
+  \inferrule*[lab=T-App]{
+    \seq{\ty{\Gamma}}{M}{\tylolli{T}{U}}
+    \\
+    \seq{\ty{\Delta}}{N}{T}
+  }{\seq{\ty{\Gamma},\ty{\Delta}}{M\;N}{U}}
+  \\
+  \inferrule*[lab=T-Unit]{
+  }{\seq{\emptyenv}{\unit}{\tyunit}}
+
+  \inferrule*[lab=T-LetUnit]{
+    \seq{\ty{\Gamma}}{M}{\tyunit}
+    \\
+    \seq{\ty{\Delta}}{N}{T}
+  }{\seq{\ty{\Gamma},\ty{\Delta}}{\letunit{M}{N}}{T}}
+  \\
+  \inferrule*[lab=T-Pair]{
+    \seq{\ty{\Gamma}}{M}{T}
+    \\
+    \seq{\ty{\Delta}}{N}{U}
+  }{\seq{\ty{\Gamma},\ty{\Delta}}{\pair{M}{N}}{\typrod{T}{U}}}
+
+  \inferrule*[lab=T-LetPair]{
+    \seq{\ty{\Gamma}}{M}{\typrod{T}{T'}}
+    \\
+    \seq{\ty{\Delta},\tmty{x}{T},\tmty{y}{T'}}{N}{U}
+  }{\seq{\ty{\Gamma},\ty{\Delta}}{\letpair{x}{y}{M}{N}}{U}}
+  \\
+  \inferrule*[lab=T-Absurd]{
+    \seq{\ty{\Gamma}}{M}{\tyvoid}
+  }{\seq{\ty{\Gamma},\ty{\Delta}}{\absurd{M}}{T}}
+  \\
+  \inferrule*[lab=T-Inl]{
+    \seq{\ty{\Gamma}}{M}{T}
+  }{\seq{\ty{\Gamma}}{\inl{M}}{\tysum{T}{U}}}
+
+  \inferrule*[lab=T-Inr]{
+    \seq{\ty{\Gamma}}{M}{U}
+  }{\seq{\ty{\Gamma}}{\inr{M}}{\tysum{T}{U}}}
+
+  \inferrule*[lab=T-CaseSum]{
+    \seq{\ty{\Gamma}}{L}{\tysum{T}{T'}}
+    \\
+    \seq{\ty{\Delta},\tmty{x}{T}}{M}{U}
+    \\
+    \seq{\ty{\Delta},\tmty{y}{T'}}{N}{U}
+  }{\seq{\ty{\Gamma},\ty{\Delta}}{\casesum{L}{x}{M}{y}{N}}{U}}
+\end{mathpar}
+
+\subsection{Operational semantics}
+\label{sec:llam-semantics}
+
+\begin{mathpar}
+  \begin{array}{llcl}
+    \LabTirName{E-Lam}   & \tm{(\lambda x.M)\;V}
+                         & \red & \tm{\subst{M}{V}{x}}
+    \\
+    \LabTirName{E-Unit}  & \tm{\letunit{\unit}{M}}
+                         & \red & \tm{M}
+    \\
+    \LabTirName{E-Pair}  & \tm{\letpair{x}{y}{\pair{V}{W}}{M}}
+                         & \red & \tm{\subst{\subst{M}{V}{x}}{W}{y}}
+    \\
+    \LabTirName{E-Inl}   & \tm{\casesum{\inl{V}}{x}{M}{y}{N}}
+                         & \red & \tm{\subst{M}{V}{x}}
+    \\
+    \LabTirName{E-Inr}   & \tm{\casesum{\inr{V}}{x}{M}{y}{N}}
+                         & \red & \tm{\subst{N}{V}{y}}
+  \end{array}
+  \\
+  \inferrule*[lab=E-Lift]{
+    \tm{M}\red\tm{M'}
+  }{\tm{\plug{E}{M}}\red\tm{\plug{E}{M'}}}
+\end{mathpar}
+
+\end{document}
+
+%%% Local Variables:
+%%% TeX-master: "main"
+%%% End:

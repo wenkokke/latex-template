@@ -1,0 +1,151 @@
+\documentclass{article}
+
+% use for separate compilation
+\usepackage{subfiles}
+\newcommand{\onlyinsubfile}[1]{#1}
+\newcommand{\notinsubfile}[1]{}
+
+% bibtex setup
+% (most conferences require a bibtex style which is incompatible with biber,
+% leaving you to redo all the nice complex \textcite commands by hand)
+\usepackage[%
+  backend=biber,
+  bibencoding=utf8,
+  style=authoryear,
+  sorting=nyt,
+  sortcites=true,
+  natbib=true,
+  backref=false,
+  backrefstyle=all+,
+  hyperref=true,
+]{biblatex}
+\bibliography{main.bib}
+
+% gives you \ie, \eg, \etc
+\usepackage[all]{foreign}
+
+% mathematical symbol packages go here
+\usepackage[fleqn]{amsmath}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{mathtools}
+\usepackage{textgreek}
+
+% useful for defining commands to use in text mode
+\usepackage{xspace}
+
+% inference rules
+\usepackage{mathpartir}
+
+% landscape pages using \begin{landscape}\end{landscape}
+\usepackage{pdflscape}
+
+% gotsta have a todo command
+\newcommand{\todo}[1]{{\textcolor{red}{\textbf{TODO:}~#1}}}
+
+% theorem environments
+% (you can do way fancier theorems but they usually break when you have to
+% convert your work to use one of the ancient latex conference templates)
+\usepackage{amsthm}
+
+% personally I~hate it when some math mode shit starts immediately after the
+% thing that says `theorem 3', but your mileage may vary -- regardless, this
+% is a good bit of documentation
+\newtheoremstyle{break}% name
+  {}%          Space above, empty = `usual value'
+  {}%          Space below
+  {\itshape}%  Body font
+  {}%          Indent amount (empty = no indent, \parindent = para indent)
+  {\bfseries}% Thm head font
+  {.}%         Punctuation after thm head
+  {\newline}%  Space after thm head: \newline = linebreak
+  {}%          Thm head spec
+
+\theoremstyle{break}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{conjecture}{Conjecture}
+
+% this one is for use within a proof environment
+\theoremstyle{remark}
+\newtheorem*{case}{Case}
+
+% sort macros
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\tm}[1]{\ensuremath{{\color[HTML]{a40038}#1}}}
+\newcommand{\ty}[1]{\ensuremath{{\color[HTML]{00007a}#1}}}
+\newcommand{\cs}[1]{\ensuremath{{\color[HTML]{009180}#1}}}
+\newcommand{\tmty}[2]{\ensuremath{\tm{#1}:\ty{#2}}}
+
+% greyed out
+\newcommand{\deprecatedstyle}{%
+  \renewcommand{\tm}[1]{\ensuremath{{\color[HTML]{C0C0C0}##1}}}%
+  \renewcommand{\ty}[1]{\ensuremath{{\color[HTML]{C0C0C0}##1}}}%
+  \renewcommand{\cs}[1]{\ensuremath{{\color[HTML]{C0C0C0}##1}}}%
+  \color[HTML]{C0C0C0}}
+\newcommand{\deprecate}[1]{{\deprecatedstyle#1}}
+
+% definitions
+\newcommand{\sep}{\;\mid\;}
+
+% environments and hyper-environments
+\newcommand{\emptyenv}{\cdot}
+
+% common operations
+\newcommand{\subst}[4][]{\ifstrempty{#1}{\ensuremath{#2\{#3/#4\}}}{\ensuremath{#2(\{#3/#4\}\cup#1)}}}
+\newcommand{\plug}[2]{\ensuremath{#1[#2]}}
+\DeclareMathOperator{\fv}{fv}
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\cod}{cod}
+
+% use for namespaces
+\usepackage{namespc}
+
+% namespace declaration
+% open globally with \usingnamespace{llam}, locally with \llam{}
+\namespace*{llam}{
+  % types
+  \newcommand{\tyunit}[0]{\ensuremath{\mathbf{1}}}
+  \newcommand{\tyvoid}[0]{\ensuremath{\mathbf{0}}}
+  \newcommand{\typrod}[2]{\ensuremath{{#1}\mathbin{\times}{#2}}}
+  \newcommand{\tysum}[2]{\ensuremath{{#1}\mathbin{+}{#2}}}
+  \newcommand{\tylolli}[2]{\ensuremath{{#1}\mathbin{\multimap}{#2}}}
+  % terms
+  \newcommand{\andthen}[2]{\ensuremath{#1;#2}}
+  \newcommand{\letbind}[3]{\ensuremath{\mathbf{let}\;#1\mathbin{=}#2\;\mathbf{in}\;#3}}
+  \newcommand{\pair}[2]{\ensuremath{(#1,#2)}}
+  \newcommand{\letpair}[4]{\ensuremath{\letbind{\pair{#1}{#2}}{#3}{#4}}}
+  \newcommand{\labinl}[0]{\ensuremath{\mathbf{inl}}}
+  \newcommand{\labinr}[0]{\ensuremath{\mathbf{inr}}}
+  \newcommand{\inl}[1]{\ensuremath{\labinl\;#1}}
+  \newcommand{\inr}[1]{\ensuremath{\labinr\;#1}}
+  \newcommand{\casesum}[5]{\ensuremath{\mathbf{case}\;#1\;\left\{\inl{#2}\mapsto{#3};\;\inr{#4}\mapsto{#5}\right\}}}
+  \newcommand{\unit}[0]{\ensuremath{()}}
+  \newcommand{\letunit}[2]{\ensuremath{\letbind{\unit}{#1}{#2}}}
+  \newcommand{\absurd}[1]{\ensuremath{\mathbf{absurd}\;#1}}
+  % evaluation contexts
+  \newcommand{\hole}[0]{\ensuremath{\square}}
+  % typing judgements
+  \newcommand{\seq}[3]{\ensuremath{#1\vdash\tmty{#2}{#3}}}
+  % reduction relations
+  \newcommand{\red}[0]{\ensuremath{\longrightarrow_{M}}}
+}{}
+\newcommand{\llam}[1]{\namespace*{llam}{}{#1}}
+
+% load cleverref
+\usepackage{varioref}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\begin{document}
+\renewcommand{\onlyinsubfile}[1]{}
+\renewcommand{\notinsubfile}[1]{#1}
+
+\subfile{llam}
+
+\printbibliography
+
+\end{document}
